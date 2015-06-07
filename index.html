@@ -1,13 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Tis the google map app">
-    <meta name="author" content="SAHson">
     <title>Neighborhood Map Project</title>
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+      }
+      #panel {
+        position: absolute;
+        top: 5px;
+        left: 50%;
+        margin-left: -180px;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+      }
+    </style>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqOWGHncrAmv2Dms0WEiBh5k01pG2Whxo">
+    </script>
+    <script type="text/javascript" src="js/main.js"></script>
   </head>
   <body>
-    <p>Nothing to see here move along</p>
+    <div id="panel">
+      <input onclick="drop();" type=button value="Drop Markers">
+    </div>
+    <div id="map-canvas"></div>
   </body>
 </html>
