@@ -51,24 +51,28 @@ function initialize() {
 function drop() {
   clearMarkers();
   for (var i = 0; i < neighborhoods.length; i++) {
-    addMarkerWithTimeout(neighborhoods[i], i * 200);
+    addMarkerWithTimeout(neighborhoods[i], i * 200, 725);
   }
 }
 
 // Add a marker to the map and push to the array.
-function addMarkerWithTimeout(position, timeout) {
+function addMarkerWithTimeout(position, dropTimeout, bounceTimeout) {
   var marker = new google.maps.Marker({
     position: position,
     map: map,
     animation: google.maps.Animation.DROP
-    // TODO add an on click style change (change color or something)
   });
   google.maps.event.addListener(marker, 'click', function() {
       infowindow.open(map,marker);
+      // Set marker to bounce for duration of bounceTimeout
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+      window.setTimeout(function() {
+        marker.setAnimation(null);
+      }, bounceTimeout);
   });
   window.setTimeout(function() {
     markers.push(marker);
-  }, timeout);
+  }, dropTimeout);
 }
 
 // Sets the map on all markers in the array.
