@@ -2,32 +2,37 @@
 <html>
   <head>
     <title>Neighborhood Map Project</title>
-    <style>
-      html, body, #map-canvas {
-        height: 100%;
-        margin: 0px;
-        padding: 0px;
-      }
-      #panel {
-        position: absolute;
-        top: 5px;
-        left: 50%;
-        margin-left: -180px;
-        z-index: 5;
-        background-color: #fff;
-        padding: 5px;
-        border: 1px solid #999;
-      }
-    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/main.css">
     <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqOWGHncrAmv2Dms0WEiBh5k01pG2Whxo">
     </script>
     <script type="text/javascript" src="js/main.js"></script>
   </head>
   <body>
-    <div id="panel">
-      <input onclick="drop();" type=button value="Drop Markers">
+    <div class="container-fluid search-bar">
+      <div class="form-horizontal">
+        <input type="text" class="form-control" placeholder="Enter search here">
+      </div>
     </div>
-    <div id="map-canvas"></div>
+    <div class="container-fluid">
+  		<div class="row">
+  			<div class="col-md-4">
+  				<div class="panel panel-default">
+  					<div class="panel-heading">
+  						Key Locations
+  					</div>
+  					<ul class="list-unstyled">
+              <li>Nip</li>
+              <li>Nagz</li>
+  					</ul>
+  				</div>
+  			</div>
+  			<div class="col-md-8">
+  				<div id="map-canvas"></div>
+  			</div>
+  		</div>
+    </div>
+
   </body>
 </html>
