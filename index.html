@@ -9,10 +9,12 @@
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script type="text/javascript" src="js/oauth-signature.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/knockout-3.3.0.js"></script>
+    <script type="text/javascript" src="js/main.js" defer="defer"></script>
   </head>
   <body>
     <div class="container-fluid search-bar">
+  <!--    <div data-bind="style: { visible: error ? 'none' : 'inherit' }" class="alert alert-danger" role="alert"> -->
       <div class="alert alert-danger" role="alert">
         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
         <span class="sr-only">Error:</span>
@@ -20,10 +22,10 @@
       </div>
       <div class="form-horizontal">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="Enter search here">
+          <input type="text" id='search-bar' class="form-control" placeholder="Enter search here">
           <span class="input-group-btn">
             <!-- Run query based on contents of text box -->
-            <button class="btn btn-default" type="button" onclick="yelpQuery( , MISSION_BAY_LAT, MISSION_BAY_LON)">Go!</button>
+            <button class="btn btn-default" type="button" onclick="yelpQuery(MISSION_BAY_LAT, MISSION_BAY_LON)">Go!</button>
           </span>
         </div>
       </div>
@@ -35,8 +37,8 @@
   					<div class="panel-heading">
   						Key Locations
   					</div>
-  					<ul class="list-unstyled">
-              <!-- Add knockout binding here -->
+  					<ul class="list-unstyled" data-bind="foreach: businesses">
+              <li data-bind="text: title"></li>
   					</ul>
   				</div>
   			</div>

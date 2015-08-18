@@ -1,7 +1,13 @@
 
-var map; // variable for google maps object
-var businesses = []; // array of business objects
-var error = false; // flag to show error message
+var map; // google maps object
+var markers = []; // markers on map
+
+// TODO Add 5 hardcoded values
+var viewModel = {
+  businesses: ko.observableArray([]), // observable array of business objects
+  error: false // flag to show error message
+};
+ko.applyBindings(viewModel);
 
 var YELP_BASE_URL = 'http://api.yelp.com/v2';
 var YELP_KEY = 'ilfd6qQVAfyUuN8I6qHDlA';
@@ -25,24 +31,15 @@ function initialize() {
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 }
 
-/*
-function drop() {
-  clearMarkers();
-  for (var i = 0; i < neighborhoods.length; i++) {
-    addMarkerWithTimeout(neighborhoods[i], i * 200, 725);
-  }
-}
-
-
 // Add a marker to the map and push to the array.
-function addMarkerWithTimeout(position, dropTimeout, bounceTimeout) {
+function addMarkerWithTimeout(business, dropTimeout, bounceTimeout) {
   var marker = new google.maps.Marker({
-    position: position,
+    position: business.position,
     map: map,
     animation: google.maps.Animation.DROP
   });
   google.maps.event.addListener(marker, 'click', function() {
-      infowindow.open(map,marker);
+      business.infoWindow.open(map,marker);
       // Set marker to bounce for duration of bounceTimeout
       marker.setAnimation(google.maps.Animation.BOUNCE);
       window.setTimeout(function() {
@@ -55,28 +52,20 @@ function addMarkerWithTimeout(position, dropTimeout, bounceTimeout) {
 }
 
 // Sets the map on all markers in the array.
-function setAllMap(map) {
+function showMarkers(map) {
   for (var i = 0; i < markers.length; i++) {
     markers[i].setMap(map);
   }
 }
 
-// Removes the markers from the map, but keeps them in the array.
-function clearMarkers() {
-  setAllMap(null);
-}
-
-// Shows any markers currently in the array.
-function showMarkers() {
-  setAllMap(map);
-}
 
 // Deletes all markers in the array by removing references to them.
 function deleteMarkers() {
-  clearMarkers();
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(null);
+  }
   markers = [];
 }
-*/
 
 /*
 * Given an array of yelp search results, transform all results
@@ -115,9 +104,11 @@ function transformBusinesses(businesses) {
 *
 * Based on MarkN's code to access yelp api.
 */
-function yelpQuery(query, lat, lon) {
+function yelpQuery(lat, lon) {
   // Remove warning banner
   error = false;
+
+  var query = $('#search-bar').val();
 
   var yelp_url = YELP_BASE_URL + '/search';
 
@@ -144,11 +135,22 @@ function yelpQuery(query, lat, lon) {
     success: function(results) {
       // Change list of business data structures
       var transformedBusinesses = transformBusinesses(results.businesses);
-      businesses = transformedBusinesses;
+
+      // Clear old state from observable array and map
+      viewModel.businesses.removeAll();
+      deleteMarkers();
+
+      // update view model array and map with new markers
+      for (i = 0; i < transformedBusinesses.length; i++) {
+        viewModel.businesses.push(transformedBusinesses[i]);
+        addMarkerWithTimeout(transformedBusinesses[i], i * 200, 725);
+      }
+      showMarkers();
+      console.log('success');
     },
     fail: function() {
       // Set warning banner to visible
-      error = true;
+      viewModel.error = true;
     }
   };
 
