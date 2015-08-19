@@ -19,7 +19,7 @@ var MISSION_BAY_LAT = 37.767997;
 var MISSION_BAY_LON = -122.3921315;
 
 var INFO_WINDOW_TITLE = "<h2 style=\"margin: 0 auto\">%TITLE%</h2>";
-var INFO_WINDOW_IMAGE = "<img src=\"%IMAGE%\" alt=\"Image not found\" height=\"100%\" width=\"100%\">";
+var INFO_WINDOW_IMAGE = "<img src=\"%IMAGE%\" alt=\"Image not found\">";
 var INFO_WINDOW_DIV = "<div class=\"container\">" + INFO_WINDOW_TITLE + INFO_WINDOW_IMAGE + "</div>";
 
 function initialize() {
@@ -51,14 +51,6 @@ function addMarkerWithTimeout(business, dropTimeout, bounceTimeout) {
   }, dropTimeout);
 }
 
-// Sets the map on all markers in the array.
-function showMarkers(map) {
-  for (var i = 0; i < markers.length; i++) {
-    markers[i].setMap(map);
-  }
-}
-
-
 // Deletes all markers in the array by removing references to them.
 function deleteMarkers() {
   for (var i = 0; i < markers.length; i++) {
@@ -87,7 +79,7 @@ function transformBusinesses(businesses) {
     });
     var transformed = {
       title: title,
-      location: googleLocation,
+      position: googleLocation,
       infoWindow: infoWindow
     };
     output.push(transformed)
@@ -145,7 +137,6 @@ function yelpQuery(lat, lon) {
         viewModel.businesses.push(transformedBusinesses[i]);
         addMarkerWithTimeout(transformedBusinesses[i], i * 200, 725);
       }
-      showMarkers();
       console.log('success');
     },
     fail: function() {
