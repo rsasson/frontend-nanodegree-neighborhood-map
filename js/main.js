@@ -4,13 +4,15 @@ var markers = []; // markers on map
 var element = null;
 
 // TODO Add 5 hardcoded values
+
 var viewModel = {
   businesses: ko.observableArray([]), // observable array of business objects
   error: ko.observable(false), // flag to show error message
-  updateMap: function() {
+  updateMap: function() { // action for submitted form
     yelpQuery($('#search-bar').val(), MISSION_BAY_LAT, MISSION_BAY_LON);
   }
 };
+
 ko.applyBindings(viewModel);
 
 var YELP_BASE_URL = 'http://api.yelp.com/v2';
@@ -84,7 +86,8 @@ function transformBusinesses(businesses) {
     var transformed = {
       title: title,
       position: googleLocation,
-      infoWindow: infoWindow
+      infoWindow: infoWindow,
+      clickFunction: "javascript:google.maps.event.trigger(markers[" + i + "], 'click');"
     };
     output.push(transformed)
   }
