@@ -1,11 +1,15 @@
 
 var map; // google maps object
 var markers = []; // markers on map
+var element = null;
 
 // TODO Add 5 hardcoded values
 var viewModel = {
   businesses: ko.observableArray([]), // observable array of business objects
-  error: false // flag to show error message
+  error: ko.observable(false), // flag to show error message
+  updateMap: function() {
+    yelpQuery($('#search-bar').val(), MISSION_BAY_LAT, MISSION_BAY_LON);
+  }
 };
 ko.applyBindings(viewModel);
 
@@ -96,11 +100,9 @@ function transformBusinesses(businesses) {
 *
 * Based on MarkN's code to access yelp api.
 */
-function yelpQuery(lat, lon) {
+function yelpQuery(query, lat, lon) {
   // Remove warning banner
-  error = false;
-
-  var query = $('#search-bar').val();
+  viewModel.error(false);
 
   var yelp_url = YELP_BASE_URL + '/search';
 
@@ -137,11 +139,10 @@ function yelpQuery(lat, lon) {
         viewModel.businesses.push(transformedBusinesses[i]);
         addMarkerWithTimeout(transformedBusinesses[i], i * 200, 725);
       }
-      console.log('success');
     },
-    fail: function() {
+    error: function() {
       // Set warning banner to visible
-      viewModel.error = true;
+      viewModel.error(true);
     }
   };
 

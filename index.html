@@ -14,21 +14,20 @@
   </head>
   <body>
     <div class="container-fluid search-bar">
-  <!--    <div data-bind="style: { visible: error ? 'none' : 'inherit' }" class="alert alert-danger" role="alert"> -->
-      <div class="alert alert-danger" role="alert">
+      <div data-bind="visible: error" class="alert alert-danger" role="alert">
         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
         <span class="sr-only">Error:</span>
         Query failed, check your internet connection and type in query again
       </div>
-      <div class="form-horizontal">
+      <form class="form-horizontal" data-bind="submit: updateMap">
         <div class="input-group">
           <input type="text" id='search-bar' class="form-control" placeholder="Enter search here">
           <span class="input-group-btn">
             <!-- Run query based on contents of text box -->
-            <button class="btn btn-default" type="button" onclick="yelpQuery(MISSION_BAY_LAT, MISSION_BAY_LON)">Go!</button>
+            <button class="btn btn-default" type="submit">Go!</button>
           </span>
         </div>
-      </div>
+      </form>
     </div>
     <div class="container-fluid">
   		<div class="row">
