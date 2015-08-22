@@ -1,10 +1,8 @@
 
 var map; // google maps object
 var markers = []; // markers on map
-var element = null;
 
-// TODO Add 5 hardcoded values
-
+// Knockout view model object
 var viewModel = {
   businesses: ko.observableArray([]), // observable array of business objects
   error: ko.observable(false), // flag to show error message
@@ -71,7 +69,7 @@ function deleteMarkers() {
 * to a more easily easily consumable format.
 *
 * There is a knockout observable array that will consume this data
-* (and make changes to the map ).
+* (and make changes to the page ).
 */
 function transformBusinesses(businesses) {
   var output = [];
