@@ -35,6 +35,7 @@ function initialize() {
     zoom: 14
   };
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  yelpQuery('chinese', MISSION_BAY_LAT, MISSION_BAY_LON); // Initialize with chinese food data
 }
 
 // Add a marker to the map and push to the array.
