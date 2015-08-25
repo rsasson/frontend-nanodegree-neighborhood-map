@@ -1,6 +1,7 @@
 
 var map; // google maps object
 var markers = []; // markers on map
+var currentInfoWindow = null;
 
 // Knockout view model object
 var viewModel = {
@@ -33,7 +34,7 @@ function initialize() {
     zoom: 14
   };
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-  yelpQuery('chinese', MISSION_BAY_LAT, MISSION_BAY_LON); // Initialize with chinese food data
+  yelpQuery('food', MISSION_BAY_LAT, MISSION_BAY_LON);
 }
 
 // Add a marker to the map and push to the array.
@@ -44,7 +45,11 @@ function addMarkerWithTimeout(business, dropTimeout, bounceTimeout) {
     animation: google.maps.Animation.DROP
   });
   google.maps.event.addListener(marker, 'click', function() {
-      business.infoWindow.open(map,marker);
+      if (currentInfoWindow) {
+        currentInfoWindow.close();
+      }
+      currentInfoWindow = business.infoWindow;
+      currentInfoWindow.open(map,marker);
       // Set marker to bounce for duration of bounceTimeout
       marker.setAnimation(google.maps.Animation.BOUNCE);
       window.setTimeout(function() {
@@ -88,7 +93,7 @@ function transformBusinesses(businesses) {
       infoWindow: infoWindow,
       clickFunction: "javascript:google.maps.event.trigger(markers[" + i + "], 'click');"
     };
-    output.push(transformed)
+    output.push(transformed);
   }
   return output;
 }
