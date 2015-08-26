@@ -1,6 +1,5 @@
 
 var map; // google maps object
-var markers = []; // markers on map
 var currentInfoWindow = null;
 
 // Knockout view model object
@@ -37,65 +36,38 @@ function initialize() {
   yelpQuery('food', MISSION_BAY_LAT, MISSION_BAY_LON);
 }
 
-// Add a marker to the map and push to the array.
-function addMarkerWithTimeout(business, dropTimeout, bounceTimeout) {
-  var marker = new google.maps.Marker({
-    position: business.position,
+/*
+* Object that encapsulates state relevant to rendering a business
+* on the list and map
+*/
+var TransformedBusiness = function(business) {
+  this.title = business.name;
+  var loc = new google.maps.LatLng(business.location.coordinate.latitude,
+    business.location.coordinate.longitude);
+  this.marker = new google.maps.Marker({
+    position: loc,
     map: map,
     animation: google.maps.Animation.DROP
   });
-  google.maps.event.addListener(marker, 'click', function() {
+  this.marker.infoWindow = new google.maps.InfoWindow({
+              content: INFO_WINDOW_DIV.
+              replace('%IMAGE%', business.image_url).
+              replace('%TITLE%', business.name)
+  });
+  google.maps.event.addListener(this.marker, 'click', function() {
       if (currentInfoWindow) {
         currentInfoWindow.close();
       }
-      currentInfoWindow = business.infoWindow;
-      currentInfoWindow.open(map,marker);
-      // Set marker to bounce for duration of bounceTimeout
-      marker.setAnimation(google.maps.Animation.BOUNCE);
-      window.setTimeout(function() {
+      currentInfoWindow = this.infoWindow;
+      currentInfoWindow.open(map, this);
+      this.setAnimation(google.maps.Animation.BOUNCE);
+      window.setTimeout(function(marker) {
         marker.setAnimation(null);
-      }, bounceTimeout);
+      }, 725, this);
   });
-  window.setTimeout(function() {
-    markers.push(marker);
-  }, dropTimeout);
-}
-
-// Deletes all markers in the array by removing references to them.
-function deleteMarkers() {
-  for (var i = 0; i < markers.length; i++) {
-    markers[i].setMap(null);
-  }
-  markers = [];
-}
-
-/*
-* Given an array of yelp search results, transform all results
-* to a more easily easily consumable format.
-*
-* There is a knockout observable array that will consume this data
-* (and make changes to the page ).
-*/
-function transformBusinesses(businesses) {
-  var output = [];
-  for (var i = 0; i < businesses.length; i++) {
-    var title = businesses[i].name;
-    var loc = businesses[i].location.coordinate;
-    var googleLocation = new google.maps.LatLng(loc.latitude, loc.longitude);
-    var infoWindow = new google.maps.InfoWindow({
-      content: INFO_WINDOW_DIV.
-                replace('%IMAGE%', businesses[i].image_url).
-                replace('%TITLE%', businesses[i].name)
-    });
-    var transformed = {
-      title: title,
-      position: googleLocation,
-      infoWindow: infoWindow,
-      clickFunction: "javascript:google.maps.event.trigger(markers[" + i + "], 'click');"
-    };
-    output.push(transformed);
-  }
-  return output;
+  this.clickFunction = function() {
+    google.maps.event.trigger(this.marker, 'click');
+  };
 }
 
 /*
@@ -134,17 +106,8 @@ function yelpQuery(query, lat, lon) {
     cache: true,
     dataType: 'jsonp',
     success: function(results) {
-      // Change list of business data structures
-      var transformedBusinesses = transformBusinesses(results.businesses);
-
-      // Clear old state from observable array and map
-      viewModel.businesses.removeAll();
-      deleteMarkers();
-
-      // update view model array and map with new markers
-      for (i = 0; i < transformedBusinesses.length; i++) {
-        viewModel.businesses.push(transformedBusinesses[i]);
-        addMarkerWithTimeout(transformedBusinesses[i], i * 200, 725);
+      for (i = 0; i < results.businesses.length; i++) {
+        viewModel.businesses.push(new TransformedBusiness(results.businesses[i]));
       }
     },
     error: function() {
