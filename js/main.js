@@ -70,7 +70,7 @@ var TransformedBusiness = function(index, business) {
   this.clickFunction = function() {
     google.maps.event.trigger(markers[this.index], 'click');
   };
-}
+};
 
 /*
 * Helper to instantiate gmaps marker object
