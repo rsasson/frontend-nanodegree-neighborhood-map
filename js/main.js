@@ -1,16 +1,33 @@
 
 var map; // google maps object
 var currentInfoWindow = null;
+var markers = [];
 
 // Knockout view model object
-var viewModel = {
-  businesses: ko.observableArray([]), // observable array of business objects
-  error: ko.observable(false), // flag to show error message
-  updateMap: function() { // action for submitted form
-    yelpQuery($('#search-bar').val(), MISSION_BAY_LAT, MISSION_BAY_LON);
-  }
+var ViewModel = function() {
+  this.businesses = ko.observableArray([]); // observable array of business objects
+  this.query = ko.observable(""); // string in search box
+  this.error = ko.observable(false); // flag to show error message
+  this.visibleList = ko.computed(function() { // list of visible businesses
+    var query = this.query().toLowerCase();
+    if (!query) {
+        return this.businesses();
+    } else {
+        return ko.utils.arrayFilter(this.businesses(), function(business) {
+            return business.title.toLowerCase().includes(query);
+        });
+    }
+  }, this);
+  this.updateMarkers = ko.computed(function() { // operation to update map
+    var vizBizs = this.visibleList();
+    hideAllMarkers();
+    ko.utils.arrayForEach(vizBizs, function(vizBiz) {
+      markers[vizBiz.index].setMap(map);
+    });
+  }, this);
 };
 
+var viewModel = new ViewModel();
 ko.applyBindings(viewModel);
 
 var YELP_BASE_URL = 'http://api.yelp.com/v2';
@@ -33,28 +50,45 @@ function initialize() {
     zoom: 14
   };
   map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-  yelpQuery('food', MISSION_BAY_LAT, MISSION_BAY_LON);
+  yelpQuery('food', MISSION_BAY_LAT, MISSION_BAY_LON, viewModel);
+}
+
+function hideAllMarkers() {
+  markers.forEach(function(marker) {
+    marker.setMap(null);
+    marker.infoWindow.close();
+  });
 }
 
 /*
 * Object that encapsulates state relevant to rendering a business
 * on the list and map
 */
-var TransformedBusiness = function(business) {
+var TransformedBusiness = function(index, business) {
+  this.index = index;
   this.title = business.name;
+  this.clickFunction = function() {
+    google.maps.event.trigger(markers[this.index], 'click');
+  };
+}
+
+/*
+* Helper to instantiate gmaps marker object
+*/
+function createMarker(business) {
   var loc = new google.maps.LatLng(business.location.coordinate.latitude,
     business.location.coordinate.longitude);
-  this.marker = new google.maps.Marker({
+  var marker = new google.maps.Marker({
     position: loc,
     map: map,
     animation: google.maps.Animation.DROP
   });
-  this.marker.infoWindow = new google.maps.InfoWindow({
+  marker.infoWindow = new google.maps.InfoWindow({
               content: INFO_WINDOW_DIV.
               replace('%IMAGE%', business.image_url).
               replace('%TITLE%', business.name)
   });
-  google.maps.event.addListener(this.marker, 'click', function() {
+  google.maps.event.addListener(marker, 'click', function() {
       if (currentInfoWindow) {
         currentInfoWindow.close();
       }
@@ -65,9 +99,7 @@ var TransformedBusiness = function(business) {
         marker.setAnimation(null);
       }, 725, this);
   });
-  this.clickFunction = function() {
-    google.maps.event.trigger(this.marker, 'click');
-  };
+  return marker;
 }
 
 /*
@@ -79,7 +111,7 @@ var TransformedBusiness = function(business) {
 *
 * Based on MarkN's code to access yelp api.
 */
-function yelpQuery(query, lat, lon) {
+function yelpQuery(query, lat, lon, viewModel) {
   // Remove warning banner
   viewModel.error(false);
 
@@ -107,7 +139,12 @@ function yelpQuery(query, lat, lon) {
     dataType: 'jsonp',
     success: function(results) {
       for (i = 0; i < results.businesses.length; i++) {
-        viewModel.businesses.push(new TransformedBusiness(results.businesses[i]));
+        // Create marker object, push to global array
+        var marker = createMarker(results.businesses[i]);
+        markers.push(marker);
+        // Create processed business object and place into view model
+        var biz = new TransformedBusiness(i, results.businesses[i]);
+        viewModel.businesses.push(biz);
       }
     },
     error: function() {

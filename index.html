@@ -19,12 +19,11 @@
         <span class="sr-only">Error:</span>
         Query failed, check your internet connection and type in query again
       </div>
-      <form class="form-horizontal" data-bind="submit: updateMap">
+      <form class="form-horizontal">
         <div class="input-group">
-          <input type="text" id='search-bar' class="form-control" placeholder="Enter search here">
+          <input data-bind="textInput: query" type="text" id='search-bar' class="form-control" >
           <span class="input-group-btn">
-            <!-- Run query based on contents of text box -->
-            <button class="btn btn-default" type="submit">Go!</button>
+            <button class="btn btn-default" disabled>Go!</button>
           </span>
         </div>
       </form>
@@ -36,7 +35,7 @@
   					<div class="panel-heading">
   						Key Locations
   					</div>
-  					<ul class="list-unstyled" data-bind="foreach: businesses">
+  					<ul class="list-unstyled" data-bind="foreach: visibleList">
 					  <li><a href='#' data-bind="text: title, click: clickFunction"></a></li>
   					</ul>
   				</div>
